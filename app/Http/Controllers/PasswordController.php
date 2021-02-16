@@ -9,7 +9,11 @@ use Illuminate\Support\Str;
 use DB;
 use Mail;
 use Carbon\Carbon;
-
+//qq授权码
+//pop3/smtp
+// ciadjjpbrhwebijd
+//imap/smtp
+// bbspixxcbzqrbjcf
 class PasswordController extends Controller
 {
     public function __construct()

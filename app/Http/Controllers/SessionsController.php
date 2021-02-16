@@ -13,7 +13,7 @@ class SessionsController extends Controller
             'only' => ['create'],
         ]);
         $this->middleware('throttle:10,10', [
-            'only' => ['store'],
+            'only' => ['store']
         ]);
     }
     public function create(){
