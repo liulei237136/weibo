@@ -23,20 +23,24 @@ class UsersController extends Controller
         ]);
     }
 
-    public function index(){
+    public function index()
+    {
         $users = User::paginate(6);
         return view('users.index', compact('users'));
     }
-    public function create(){
+    public function create()
+    {
         return view('users.create');
     }
 
-    public function show(User $user){
+    public function show(User $user)
+    {
         $statuses = $user->statuses()->orderBy('created_at', 'desc')->paginate(10);
         return view('users.show', compact('user', 'statuses'));
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $this->validate($request, [
             'name' => 'required|unique:users|max:50',
             'email' => 'required|email|unique:users|max:255',
@@ -56,12 +60,14 @@ class UsersController extends Controller
         // return redirect()->route('users.show', [$user]);
     }
 
-    public function edit(User $user){
+    public function edit(User $user)
+    {
         $this->authorize('update', $user);
         return view('users.edit', compact('user'));
     }
 
-    public function update(User $user, Request $request){
+    public function update(User $user, Request $request)
+    {
         $this->authorize('update', $user);
         $this->validate($request, [
             'name' => 'required|max:50',
@@ -70,7 +76,7 @@ class UsersController extends Controller
 
         $data = [];
         $data['name'] = $request->name;
-        if ($request->password){
+        if ($request->password) {
             $data['password'] = bcrypt($request->password);
         }
 
@@ -82,26 +88,29 @@ class UsersController extends Controller
     }
 
 
-    public function destroy(User $user){
+    public function destroy(User $user)
+    {
         $this->authorize('destroy', $user);
         $user->delete();
         session()->flash('success', '成功删除用户');
         return back();
     }
 
-    protected function sendEmailConfirmationTo($user){
+    protected function sendEmailConfirmationTo($user)
+    {
         $view = 'emails.confirm';
         $data = compact('user');
         $from = 'liulei237136@example.com';
         $name = 'liulei237136';
         $to = $user->email;
         $subject = "感谢注册 Weibo 应用！请确认你的邮箱。";
-        Mail::send($view, $data, function($message) use($from, $name, $to, $subject){
+        Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
             $message->to($to)->subject($subject);
         });
     }
 
-    public function confirmEmail($token){
+    public function confirmEmail($token)
+    {
         $user = User::where('activation_token', $token)->firstOrFail();
 
         $user->activated = true;
@@ -111,5 +120,19 @@ class UsersController extends Controller
         Auth::login($user);
         session()->flash('success', '恭喜你，激活成功!');
         return redirect()->route('users.show', [$user]);
+    }
+
+    public function followings(User $user)
+    {
+        $users = $user->followings()->paginate(30);
+        $title = $user->name . '关注的人';
+        return view('users.show_follow', compact('users', 'title'));
+    }
+
+    public function followers(User $user)
+    {
+        $users = $user->followers()->paginate(30);
+        $title = $user->name . '的粉丝';
+        return view('users.show_follow', compact('users', 'title'));
     }
 }
